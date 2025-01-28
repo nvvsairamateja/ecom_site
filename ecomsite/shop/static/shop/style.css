@@ -1,0 +1,44 @@
+/* Make the card have a square shape */
+.card {
+    width: 100%;
+    /* Make sure the card stretches to the available space */
+    aspect-ratio: 1 / 1;
+    /* Make the card a square by setting width = height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Ensure the search box card doesn't inherit the aspect ratio */
+.search-box-card {
+    aspect-ratio: unset;
+    /* Remove the square shape constraint */
+    display: block;
+    /* Optional: reset display if needed */
+}
+
+/* Ensure the image scales down to fit the card */
+.card-img-top {
+    width: 100%;
+    /* Make sure the image stretches across the full width */
+    height: 100%;
+    /* Make the image fill the card height */
+    object-fit: contain;
+    /* Ensures the entire image fits inside the card without being cropped */
+}
+
+/* Optional: Set consistent height for the card body */
+.card-body {
+    padding: 1rem;
+    text-align: center;
+}
+
+.card-text {
+    color: green;
+    font-weight: 600;
+}
+
+.card-title {
+    font-weight: 700;
+}
