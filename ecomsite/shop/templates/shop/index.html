@@ -80,7 +80,7 @@
                         <div id="nm{{product.id}}" class="card-title">
                             {{product.title}}
                         </div>
-                        <div class="card-text">
+                        <div id="price{{product.id}}" class="card-text">
                             ₹{{product.price}}
                         </div>
                         <a class="btn btn-warning" href="/{{product.id}}/">View</a>
@@ -113,52 +113,77 @@
 </body>
 
 <script type="text/javascript">
-    let cart = {}
+    let cart = {};
     if (localStorage.getItem('cart') == null) {
         cart = {};
     }
     else {
         cart = JSON.parse(localStorage.getItem('cart'));
     }
+    // Function to update the cart button text
+    function updateCartButton() {
+        const cartQuantity = Object.values(cart).reduce((total, [qty]) => total + qty, 0); // Calculate total quantity
+        const cartButton = document.getElementById("cart");
+        cartButton.innerHTML = `Cart(${cartQuantity})`; // Update button text
+    }
+
     $(document).on('click', '.atc', function () {
         const item_id = this.id.toString();
         if (cart[item_id] !== undefined) {
-            cart[item_id] = cart[item_id] + 1;
+            price = document.getElementById("price"+item_id).innerHTML;
+            price = price.trimStart()
+            price = price.slice(1)
+            price = parseFloat(price)
+            quantity = cart[item_id][0] + 1;
+            cart[item_id][0] = quantity;
+            cart[item_id][2] = cart[item_id][2] + price;
         }
         else {
-            cart[item_id] = 1;
+            quantity = 1;
+            price = document.getElementById("price"+item_id).innerHTML;
+            price = price.trimStart()
+            price = price.slice(1)
+            price = parseFloat(price)
+            name = document.getElementById("nm" + item_id).innerHTML;
+            cart[item_id] = [quantity, name, price];
         }
         console.log(cart);
         localStorage.setItem('cart', JSON.stringify(cart));
-    })
-    // Initialize the popover
+        updateCartButton();
+    });
     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
     const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
 
-    // Dynamically update popover content
     document.getElementById("cart").addEventListener("click", function () {
-        const popoverElement = bootstrap.Popover.getInstance(this); // Get the current popover instance
+        const popoverElement = bootstrap.Popover.getInstance(this);
         let cartHtml = "<strong>Your Cart:</strong><br>";
         let cartIndex = 1;
 
-        // Loop through the cart to build the HTML
-        for (const [item_id, qty] of Object.entries(cart)) {
-            const itemName = document.getElementById("nm" + item_id).innerHTML;
-            cartHtml += `<p>${cartIndex}. ${itemName} - Qty: ${qty}</p>`;
+        for (const [item_id, [qty, name]] of Object.entries(cart)) {
+            //const itemName = document.getElementById("nm" + item_id).innerHTML;
+            //cartHtml += `<p>${cartIndex}. ${name} - Qty: ${qty}</p>`;
+            cartHtml += `<ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <a href="/${item_id}/" class="text-primary text-decoration-none">${cartIndex}. ${name}</a>
+                      <span class="badge bg-primary rounded-pill">${qty}</span>
+                    </li>
+                  </ul>`;
             cartIndex += 1;
         }
+
+        cartHtml += '<br><a class="btn btn-warning" id= "checkout" href="/checkout/">Checkout</a>'
+
 
         if (Object.keys(cart).length === 0) {
             cartHtml = "<strong>Your cart is empty</strong>";
         }
 
-        // Update the popover content with HTML
         if (popoverElement) {
-            this.setAttribute('data-bs-content', cartHtml); // Update the attribute for safety
-            popoverElement.setContent({ '.popover-body': cartHtml }); // Update Bootstrap content
+            this.setAttribute('data-bs-content', cartHtml);
+            popoverElement.setContent({ '.popover-body': cartHtml });
         }
     });
-
+    updateCartButton();
 
 
 
